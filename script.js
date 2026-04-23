@@ -390,62 +390,47 @@ function closeProductModal() {
     scannedProduct = null;
 }
 
-async function scanBarcode() {
-    productModal.style.display = 'flex';
-    modalOverlay.style.display = 'block';
-    productInfo.innerHTML = '<div class="product-loading">📱 Abriendo cámara...</div>';
+function scanBarcode() {
+    // Crear input de archivo
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.capture = 'environment';
 
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment' }
-        });
+    input.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-        const video = document.createElement('video');
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
+        productModal.style.display = 'flex';
+        modalOverlay.style.display = 'block';
+        productInfo.innerHTML = '<div class="product-loading">🔍 Analizando código de barras...</div>';
 
-        video.srcObject = stream;
-        video.play();
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
 
-        let scanning = true;
-        let barcode = null;
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const code = jsQR(imageData.data, imageData.width, imageData.height);
 
-        const scanFrame = () => {
-            if (!scanning) return;
-
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0);
-
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(imageData.data, imageData.width, imageData.height);
-
-            if (code && code.data) {
-                barcode = code.data;
-                scanning = false;
-                stream.getTracks().forEach(track => track.stop());
-                searchProduct(barcode);
-                return;
-            }
-
-            requestAnimationFrame(scanFrame);
+                if (code && code.data) {
+                    console.log('✅ Código encontrado:', code.data);
+                    searchProduct(code.data);
+                } else {
+                    productInfo.innerHTML = '<div class="product-error">⚠️ No se detectó código de barras en la imagen. Intenta con otra foto.</div>';
+                }
+            };
+            img.src = event.target.result;
         };
+        reader.readAsDataURL(file);
+    });
 
-        scanFrame();
-
-        // Timeout de 30 segundos
-        setTimeout(() => {
-            if (scanning) {
-                scanning = false;
-                stream.getTracks().forEach(track => track.stop());
-                productInfo.innerHTML = '<div class="product-error">⏱️ Tiempo agotado. Intenta de nuevo.</div>';
-            }
-        }, 30000);
-
-    } catch (error) {
-        console.error(error);
-        productInfo.innerHTML = `<div class="product-error">❌ No se pudo acceder a la cámara</div>`;
-    }
+    input.click();
 }
 
 async function searchProduct(barcode) {
