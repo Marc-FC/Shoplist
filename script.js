@@ -391,40 +391,80 @@ function closeProductModal() {
 }
 
 async function scanBarcode() {
+    productModal.style.display = 'flex';
+    modalOverlay.style.display = 'block';
+    productInfo.innerHTML = '<div class="product-loading">📱 Abriendo cámara...</div>';
+
     try {
-        const codeReader = new ZXing.BrowserMultiFormatReader();
-        productModal.style.display = 'flex';
-        modalOverlay.style.display = 'block';
-        productInfo.innerHTML = '<div class="product-loading">📱 Abriendo cámara...</div>';
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' }
+        });
 
-        try {
-            const result = await codeReader.decodeFromConstraints(
-                { video: { facingMode: 'environment' } }
-            );
+        const video = document.createElement('video');
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
 
-            const barcode = result.getText();
-            console.log('✅ Código escaneado:', barcode);
+        video.srcObject = stream;
+        video.play();
 
-            productInfo.innerHTML = '<div class="product-loading">🔍 Buscando producto...</div>';
+        let scanning = true;
+        let barcode = null;
 
-            const response = await fetch(
-                `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`
-            );
-            const data = await response.json();
+        const scanFrame = () => {
+            if (!scanning) return;
 
-            if (data.status === 1 && data.product) {
-                scannedProduct = data.product;
-                showProductInfo(data.product);
-            } else {
-                productInfo.innerHTML = `<div class="product-error">⚠️ Producto no encontrado</div>`;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            ctx.drawImage(video, 0, 0);
+
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+            if (code && code.data) {
+                barcode = code.data;
+                scanning = false;
+                stream.getTracks().forEach(track => track.stop());
+                searchProduct(barcode);
+                return;
             }
-            codeReader.reset();
-        } catch (err) {
-            productInfo.innerHTML = `<div class="product-error">❌ Error: ${err.message}</div>`;
-        }
+
+            requestAnimationFrame(scanFrame);
+        };
+
+        scanFrame();
+
+        // Timeout de 30 segundos
+        setTimeout(() => {
+            if (scanning) {
+                scanning = false;
+                stream.getTracks().forEach(track => track.stop());
+                productInfo.innerHTML = '<div class="product-error">⏱️ Tiempo agotado. Intenta de nuevo.</div>';
+            }
+        }, 30000);
+
     } catch (error) {
         console.error(error);
-        closeProductModal();
+        productInfo.innerHTML = `<div class="product-error">❌ No se pudo acceder a la cámara</div>`;
+    }
+}
+
+async function searchProduct(barcode) {
+    try {
+        productInfo.innerHTML = '<div class="product-loading">🔍 Buscando producto...</div>';
+
+        const response = await fetch(
+            `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`
+        );
+        const data = await response.json();
+
+        if (data.status === 1 && data.product) {
+            scannedProduct = data.product;
+            showProductInfo(data.product);
+        } else {
+            productInfo.innerHTML = `<div class="product-error">⚠️ Producto no encontrado<br><small>Código: ${barcode}</small></div>`;
+        }
+    } catch (error) {
+        productInfo.innerHTML = `<div class="product-error">❌ Error en la búsqueda</div>`;
     }
 }
 
@@ -443,6 +483,7 @@ addProductFromScanBtn.addEventListener('click', () => {
     if (scannedProduct) {
         productInput.value = scannedProduct.product_name || '';
         closeProductModal();
+        productInput.focus();
     }
 });
 
