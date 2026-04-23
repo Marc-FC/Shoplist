@@ -4,6 +4,8 @@ const addBtn = document.getElementById('addBtn');
 const cameraBtn = document.getElementById('cameraBtn');
 const photoInput = document.getElementById('photoInput');
 const categorySelect = document.getElementById('categorySelect');
+const notesInput = document.getElementById('notesInput');
+const storeInput = document.getElementById('storeInput');
 const productList = document.getElementById('productList');
 const emptyMessage = document.getElementById('emptyMessage');
 const listSelect = document.getElementById('listSelect');
@@ -99,6 +101,8 @@ function getCurrentProducts() {
 function addProduct() {
     const productName = productInput.value.trim();
     const category = categorySelect.value;
+    const notes = notesInput.value.trim();
+    const store = storeInput.value.trim();
 
     if (productName === '') {
         alert('Escribe el nombre del producto');
@@ -113,7 +117,9 @@ function addProduct() {
         name: productName,
         category: category,
         completed: false,
-        photo: currentPhoto
+        photo: currentPhoto,
+        notes: notes,
+        store: store
     };
 
     currentList.products.push(newProduct);
@@ -130,6 +136,8 @@ function addProduct() {
     }
 
     productInput.value = '';
+    notesInput.value = '';
+    storeInput.value = '';
     currentPhoto = null;
     cameraBtn.textContent = '📷';
     cameraBtn.style.background = '#20c997';
@@ -173,7 +181,7 @@ function switchList(listId) {
 function groupByCategory(products) {
     const grouped = {};
     products.forEach(product => {
-        const category = product.category || '🍔';
+        const category = product.category || '🏠';
         if (!grouped[category]) {
             grouped[category] = [];
         }
@@ -257,21 +265,30 @@ function render() {
                 }
 
                 content += `
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <input
-                            type="checkbox"
-                            class="checkbox"
-                            ${product.completed ? 'checked' : ''}
-                            onchange="toggleProduct(${product.id})"
-                        >
-                        <span class="product-name">${product.name}</span>
+                    <div style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <input
+                                type="checkbox"
+                                class="checkbox"
+                                ${product.completed ? 'checked' : ''}
+                                onchange="toggleProduct(${product.id})"
+                            >
+                            <span class="product-name">${product.name}</span>
+                        </div>
+                        ${product.store ? `<div style="font-size: 12px; color: #666; padding-left: 32px;">🏪 ${product.store}</div>` : ''}
+                        ${product.notes ? `<div style="font-size: 12px; color: #888; padding-left: 32px; font-style: italic;">📝 ${product.notes}</div>` : ''}
                     </div>
                 `;
 
                 content += `
-                    <button class="delete-btn" onclick="deleteProduct(${product.id})">
-                        ✕
-                    </button>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button class="edit-btn" onclick="editProduct(${product.id})">
+                            ✏️
+                        </button>
+                        <button class="delete-btn" onclick="deleteProduct(${product.id})">
+                            ✕
+                        </button>
+                    </div>
                 `;
 
                 li.innerHTML = content;
@@ -389,6 +406,110 @@ function closeProductModal() {
     modalOverlay.style.display = 'none';
     scannedProduct = null;
 }
+
+// Funciones para editar producto
+const editModal = document.getElementById('editModal');
+const editModalOverlay = document.getElementById('editModalOverlay');
+const editProductName = document.getElementById('editProductName');
+const editCategorySelect = document.getElementById('editCategorySelect');
+const editStoreInput = document.getElementById('editStoreInput');
+const editNotesInput = document.getElementById('editNotesInput');
+const editCameraBtn = document.getElementById('editCameraBtn');
+const editPhotoInput = document.getElementById('editPhotoInput');
+const editPhotoPreview = document.getElementById('editPhotoPreview');
+const saveEditBtn = document.getElementById('saveEditBtn');
+
+let editingProductId = null;
+let editingListId = null;
+let editingNewPhoto = null;
+
+function editProduct(id) {
+    const currentList = getCurrentList();
+    if (!currentList) return;
+
+    const product = currentList.products.find(p => p.id === id);
+    if (!product) return;
+
+    editingProductId = id;
+    editingListId = currentList.id;
+    editingNewPhoto = null;
+
+    // Llenar el formulario con los datos del producto
+    editProductName.value = product.name;
+    editCategorySelect.value = product.category;
+    editStoreInput.value = product.store || '';
+    editNotesInput.value = product.notes || '';
+
+    // Mostrar foto actual
+    if (product.photo) {
+        editPhotoPreview.innerHTML = `<img src="${product.photo}" style="width: 100%; height: 100%; object-fit: cover;">`;
+    } else {
+        editPhotoPreview.innerHTML = 'Sin foto';
+    }
+
+    // Mostrar modal
+    editModal.style.display = 'flex';
+    editModalOverlay.style.display = 'block';
+    editProductName.focus();
+}
+
+function closeEditModal() {
+    editModal.style.display = 'none';
+    editModalOverlay.style.display = 'none';
+    editingProductId = null;
+    editingListId = null;
+    editingNewPhoto = null;
+}
+
+function saveProductEdit() {
+    if (!editingProductId || !editingListId) return;
+
+    const list = lists.find(l => l.id === editingListId);
+    if (!list) return;
+
+    const product = list.products.find(p => p.id === editingProductId);
+    if (!product) return;
+
+    const newName = editProductName.value.trim();
+    if (newName === '') {
+        alert('Escribe el nombre del producto');
+        return;
+    }
+
+    // Actualizar datos del producto
+    product.name = newName;
+    product.category = editCategorySelect.value;
+    product.store = editStoreInput.value.trim();
+    product.notes = editNotesInput.value.trim();
+
+    // Si se capturó una nueva foto, usar esa
+    if (editingNewPhoto) {
+        product.photo = editingNewPhoto;
+    }
+
+    saveData();
+    render();
+    closeEditModal();
+}
+
+// Event listeners para editar modal
+editCameraBtn.addEventListener('click', () => {
+    editPhotoInput.click();
+});
+
+editPhotoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            editingNewPhoto = event.target.result;
+            editPhotoPreview.innerHTML = `<img src="${editingNewPhoto}" style="width: 100%; height: 100%; object-fit: cover;">`;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+saveEditBtn.addEventListener('click', saveProductEdit);
 
 async function searchProductByName() {
     const query = productInput.value.trim();

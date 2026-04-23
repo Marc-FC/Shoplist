@@ -70,6 +70,25 @@
                         </ul>
                     </div>
 
+                    <div class="form-group">
+                        <textarea
+                            id="notesInput"
+                            class="notes-input"
+                            placeholder="Notas (ej: Preferir marca X, comprar tamaño grande)"
+                            rows="2"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <input
+                            type="text"
+                            id="storeInput"
+                            class="store-input"
+                            placeholder="Tienda (ej: Carrefour, Mercadona)"
+                            autocomplete="off"
+                        >
+                    </div>
+
                     <div class="form-row">
                         <select id="categorySelect" class="category-select">
                             <option value="🍎">🍎 Frutas</option>
@@ -78,11 +97,14 @@
                             <option value="🥫">🥫 Conservas</option>
                             <option value="🍞">🍞 Panadería</option>
                             <option value="🌶️">🌶️ Salsas</option>
+                            <option value="🧂">🧂 Condimentos</option>
+                            <option value="🍖">🍖 Carnes</option>
+                            <option value="🐟">🐟 Pescado</option>
                             <option value="🍬">🍬 Snacks</option>
                             <option value="🧹">🧹 Limpieza</option>
                             <option value="💊">💊 Medicinas</option>
                             <option value="🧃">🧃 Bebidas</option>
-                            <option value="🍔">🍔 Otros</option>
+                            <option value="🏠">🏠 Otros</option>
                         </select>
                         <button id="cameraBtn" class="btn btn-camera">📷</button>
                         <button id="addBtn" class="btn btn-add">Agregar</button>
@@ -136,6 +158,91 @@
 
             <!-- Overlay del modal -->
             <div id="modalOverlay" class="modal-overlay" style="display: none;" onclick="closeProductModal()"></div>
+
+            <!-- Modal para editar producto -->
+            <div id="editModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>Editar Producto</h2>
+                        <button class="modal-close" onclick="closeEditModal()">✕</button>
+                    </div>
+                    <div class="modal-body" style="padding: 20px;">
+                        <div class="form-group">
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Nombre del Producto</label>
+                            <input
+                                type="text"
+                                id="editProductName"
+                                placeholder="Nombre del producto"
+                                autocomplete="off"
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Categoría</label>
+                            <select id="editCategorySelect" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;">
+                                <option value="🍎">🍎 Frutas</option>
+                                <option value="🥛">🥛 Lácteos</option>
+                                <option value="🥕">🥕 Verduras</option>
+                                <option value="🥫">🥫 Conservas</option>
+                                <option value="🍞">🍞 Panadería</option>
+                                <option value="🌶️">🌶️ Salsas</option>
+                                <option value="🧂">🧂 Condimentos</option>
+                                <option value="🍖">🍖 Carnes</option>
+                                <option value="🐟">🐟 Pescado</option>
+                                <option value="🍬">🍬 Snacks</option>
+                                <option value="🧹">🧹 Limpieza</option>
+                                <option value="💊">💊 Medicinas</option>
+                                <option value="🧃">🧃 Bebidas</option>
+                                <option value="🏠">🏠 Otros</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Tienda</label>
+                            <input
+                                type="text"
+                                id="editStoreInput"
+                                placeholder="Tienda (ej: Carrefour, Mercadona)"
+                                autocomplete="off"
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box;"
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Notas</label>
+                            <textarea
+                                id="editNotesInput"
+                                placeholder="Notas (ej: Preferir marca X, comprar tamaño grande)"
+                                rows="2"
+                                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; box-sizing: border-box; font-family: inherit;"
+                            ></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: block; font-weight: 600; margin-bottom: 6px;">Foto</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <div id="editPhotoPreview" style="width: 60px; height: 60px; border: 2px dashed #ddd; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f9f9f9; font-size: 12px; color: #999;">Sin foto</div>
+                                <button type="button" id="editCameraBtn" class="btn btn-camera" style="flex-shrink: 0;">📷 Cambiar</button>
+                                <input
+                                    type="file"
+                                    id="editPhotoInput"
+                                    accept="image/*"
+                                    capture="environment"
+                                    style="display: none;"
+                                >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+                        <button id="saveEditBtn" class="btn btn-add">Guardar Cambios</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overlay del modal de edición -->
+            <div id="editModalOverlay" class="modal-overlay" style="display: none;" onclick="closeEditModal()"></div>
         </main>
     </div>
 
