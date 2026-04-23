@@ -15,7 +15,7 @@ const cancelListBtn = document.getElementById('cancelListBtn');
 const listTitle = document.getElementById('listTitle');
 const productCount = document.getElementById('productCount');
 const suggestionsList = document.getElementById('suggestionsList');
-const barcodeBtn = document.getElementById('barcodeBtn');
+const searchBtn = document.getElementById('searchBtn');
 const productModal = document.getElementById('productModal');
 const modalOverlay = document.getElementById('modalOverlay');
 const productInfo = document.getElementById('productInfo');
@@ -390,47 +390,56 @@ function closeProductModal() {
     scannedProduct = null;
 }
 
-function scanBarcode() {
-    // Crear input de archivo
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'image/*';
-    input.capture = 'environment';
+async function searchProductByName() {
+    const query = productInput.value.trim();
+    if (!query) {
+        alert('Escribe un nombre de producto');
+        return;
+    }
 
-    input.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+    productModal.style.display = 'flex';
+    modalOverlay.style.display = 'block';
+    productInfo.innerHTML = '<div class="product-loading">🔍 Buscando productos...</div>';
 
-        productModal.style.display = 'flex';
-        modalOverlay.style.display = 'block';
-        productInfo.innerHTML = '<div class="product-loading">🔍 Analizando código de barras...</div>';
+    try {
+        const response = await fetch(
+            `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=1&page_size=5`
+        );
+        const data = await response.json();
 
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
+        if (data.products && data.products.length > 0) {
+            showSearchResults(data.products);
+        } else {
+            productInfo.innerHTML = '<div class="product-error">⚠️ No se encontraron productos</div>';
+        }
+    } catch (error) {
+        console.error(error);
+        productInfo.innerHTML = '<div class="product-error">❌ Error en la búsqueda</div>';
+    }
+}
 
-                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                const code = jsQR(imageData.data, imageData.width, imageData.height);
+function showSearchResults(products) {
+    let html = '<div style="text-align: left; max-height: 400px; overflow-y: auto;">';
 
-                if (code && code.data) {
-                    console.log('✅ Código encontrado:', code.data);
-                    searchProduct(code.data);
-                } else {
-                    productInfo.innerHTML = '<div class="product-error">⚠️ No se detectó código de barras en la imagen. Intenta con otra foto.</div>';
-                }
-            };
-            img.src = event.target.result;
-        };
-        reader.readAsDataURL(file);
+    products.forEach(product => {
+        const name = product.product_name || 'Producto';
+        const brand = product.brands || 'Sin marca';
+        html += `
+            <div style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer; transition: background 0.2s;" onclick="selectProduct('${name.replace(/'/g, "\\'")}', '${brand.replace(/'/g, "\\'")}')">
+                <div style="font-weight: 600; color: #333;">${name}</div>
+                <div style="font-size: 12px; color: #999;">${brand}</div>
+            </div>
+        `;
     });
 
-    input.click();
+    html += '</div>';
+    productInfo.innerHTML = html;
+}
+
+function selectProduct(name, brand) {
+    productInput.value = name;
+    closeProductModal();
+    productInput.focus();
 }
 
 async function searchProduct(barcode) {
@@ -463,14 +472,7 @@ function showProductInfo(product) {
     productInfo.innerHTML = html;
 }
 
-barcodeBtn.addEventListener('click', scanBarcode);
-addProductFromScanBtn.addEventListener('click', () => {
-    if (scannedProduct) {
-        productInput.value = scannedProduct.product_name || '';
-        closeProductModal();
-        productInput.focus();
-    }
-});
+searchBtn.addEventListener('click', searchProductByName);
 
 // Cargar al abrir (cuando el DOM está listo)
 if (document.readyState === 'loading') {

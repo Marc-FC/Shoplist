@@ -57,13 +57,14 @@
             <!-- Agregar Producto -->
             <section class="add-product-section">
                 <div class="add-product-form">
-                    <div class="input-group">
+                    <div class="input-group-with-search">
                         <input
                             type="text"
                             id="productInput"
                             placeholder="¿Qué necesitas comprar?"
                             autocomplete="off"
                         >
+                        <button id="searchBtn" class="btn btn-search">📱</button>
                         <ul id="suggestionsList" class="suggestions-list" style="display: none;">
                             <!-- Sugerencias generadas por JS -->
                         </ul>
@@ -83,7 +84,6 @@
                             <option value="🧃">🧃 Bebidas</option>
                             <option value="🍔">🍔 Otros</option>
                         </select>
-                        <button id="barcodeBtn" class="btn btn-barcode">📱</button>
                         <button id="cameraBtn" class="btn btn-camera">📷</button>
                         <button id="addBtn" class="btn btn-add">Agregar</button>
                     </div>
@@ -139,7 +139,7 @@
         </main>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="script.js"></script>
 
     <!-- Registrar Service Worker para PWA -->
