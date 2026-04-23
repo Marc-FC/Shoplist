@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="App para gestionar tus listas de compras con fotos, categorías e historial inteligente">
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ShopList">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23667eea' width='192' height='192'/><text x='50%' y='50%' font-size='120' font-weight='bold' text-anchor='middle' dominant-baseline='middle' fill='white' font-family='Arial'>🛒</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23667eea' width='192' height='192'/><text x='50%' y='50%' font-size='120' font-weight='bold' text-anchor='middle' dominant-baseline='middle' fill='white' font-family='Arial'>🛒</text></svg>">
+    <link rel="manifest" href="manifest.json">
+    <title>ShopList - Tu lista de compras inteligente</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">🛒 ShopList</h1>
+                <p class="subtitle">Tu lista de compras inteligente</p>
+            </div>
+        </header>
+
+        <main class="main">
+            <!-- Gestor de Listas -->
+            <section class="lists-section">
+                <div class="lists-container">
+                    <div class="list-selector-group">
+                        <label>Mi Lista Actual</label>
+                        <select id="listSelect" class="list-selector">
+                            <!-- Opciones generadas por JS -->
+                        </select>
+                    </div>
+                    <button id="newListBtn" class="btn btn-primary">+ Nueva Lista</button>
+                </div>
+
+                <!-- Formulario Nueva Lista (oculto) -->
+                <div id="newListForm" class="new-list-form" style="display: none;">
+                    <div class="form-group">
+                        <input
+                            type="text"
+                            id="newListInput"
+                            placeholder="Ej: Compra Semanal, Cumpleaños..."
+                            autocomplete="off"
+                        >
+                    </div>
+                    <div class="form-actions">
+                        <button id="createListBtn" class="btn btn-success">Crear Lista</button>
+                        <button id="cancelListBtn" class="btn btn-secondary">Cancelar</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Agregar Producto -->
+            <section class="add-product-section">
+                <div class="add-product-form">
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            id="productInput"
+                            placeholder="¿Qué necesitas comprar?"
+                            autocomplete="off"
+                        >
+                        <ul id="suggestionsList" class="suggestions-list" style="display: none;">
+                            <!-- Sugerencias generadas por JS -->
+                        </ul>
+                    </div>
+
+                    <div class="form-row">
+                        <select id="categorySelect" class="category-select">
+                            <option value="🍎">🍎 Frutas</option>
+                            <option value="🥛">🥛 Lácteos</option>
+                            <option value="🥕">🥕 Verduras</option>
+                            <option value="🥫">🥫 Conservas</option>
+                            <option value="🍞">🍞 Panadería</option>
+                            <option value="🌶️">🌶️ Salsas</option>
+                            <option value="🍬">🍬 Snacks</option>
+                            <option value="🧹">🧹 Limpieza</option>
+                            <option value="💊">💊 Medicinas</option>
+                            <option value="🧃">🧃 Bebidas</option>
+                            <option value="🍔">🍔 Otros</option>
+                        </select>
+                        <button id="cameraBtn" class="btn btn-camera">📷</button>
+                        <button id="addBtn" class="btn btn-add">Agregar</button>
+                    </div>
+                </div>
+
+                <!-- Input oculto para fotos -->
+                <input
+                    type="file"
+                    id="photoInput"
+                    accept="image/*"
+                    capture="environment"
+                    style="display: none;"
+                >
+            </section>
+
+            <!-- Lista de Productos -->
+            <section class="products-section">
+                <div class="products-header">
+                    <h2 id="listTitle">Mi Lista</h2>
+                    <span id="productCount" class="product-count">0 productos</span>
+                </div>
+
+                <ul id="productList" class="product-list">
+                    <!-- Productos generados por JS -->
+                </ul>
+
+                <div id="emptyMessage" class="empty-state">
+                    <p class="empty-icon">🛍️</p>
+                    <p class="empty-text">Tu lista está vacía</p>
+                    <p class="empty-hint">¡Empieza a agregar productos!</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+
+    <!-- Registrar Service Worker para PWA -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => {
+                    console.log('✅ PWA registrada:', registration);
+                })
+                .catch(error => {
+                    console.log('⚠️ Error registrando PWA:', error);
+                });
+        }
+
+        // Detectar instalación
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('📱 App lista para instalar');
+        });
+    </script>
+</body>
+</html>
