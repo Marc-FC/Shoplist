@@ -15,6 +15,11 @@ const cancelListBtn = document.getElementById('cancelListBtn');
 const listTitle = document.getElementById('listTitle');
 const productCount = document.getElementById('productCount');
 const suggestionsList = document.getElementById('suggestionsList');
+const barcodeBtn = document.getElementById('barcodeBtn');
+const productModal = document.getElementById('productModal');
+const modalOverlay = document.getElementById('modalOverlay');
+const productInfo = document.getElementById('productInfo');
+const addProductFromScanBtn = document.getElementById('addProductFromScanBtn');
 
 // Estructura de datos
 let lists = [];
@@ -373,6 +378,71 @@ function showSuggestions(searchText) {
 document.addEventListener('click', (e) => {
     if (e.target !== productInput && e.target !== suggestionsList) {
         suggestionsList.style.display = 'none';
+    }
+});
+
+// Funciones para escaneo de códigos de barras
+let scannedProduct = null;
+
+function closeProductModal() {
+    productModal.style.display = 'none';
+    modalOverlay.style.display = 'none';
+    scannedProduct = null;
+}
+
+async function scanBarcode() {
+    try {
+        const codeReader = new ZXing.BrowserMultiFormatReader();
+        productModal.style.display = 'flex';
+        modalOverlay.style.display = 'block';
+        productInfo.innerHTML = '<div class="product-loading">📱 Abriendo cámara...</div>';
+
+        try {
+            const result = await codeReader.decodeFromConstraints(
+                { video: { facingMode: 'environment' } }
+            );
+
+            const barcode = result.getText();
+            console.log('✅ Código escaneado:', barcode);
+
+            productInfo.innerHTML = '<div class="product-loading">🔍 Buscando producto...</div>';
+
+            const response = await fetch(
+                `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`
+            );
+            const data = await response.json();
+
+            if (data.status === 1 && data.product) {
+                scannedProduct = data.product;
+                showProductInfo(data.product);
+            } else {
+                productInfo.innerHTML = `<div class="product-error">⚠️ Producto no encontrado</div>`;
+            }
+            codeReader.reset();
+        } catch (err) {
+            productInfo.innerHTML = `<div class="product-error">❌ Error: ${err.message}</div>`;
+        }
+    } catch (error) {
+        console.error(error);
+        closeProductModal();
+    }
+}
+
+function showProductInfo(product) {
+    let html = '<div class="product-detail">';
+    html += `<div class="detail-item"><span class="detail-label">Producto</span><span class="detail-value">${product.product_name || 'N/A'}</span></div>`;
+    if (product.brands) html += `<div class="detail-item"><span class="detail-label">Marca</span><span class="detail-value">${product.brands}</span></div>`;
+    if (product.categories) html += `<div class="detail-item"><span class="detail-label">Categoría</span><span class="detail-value">${product.categories}</span></div>`;
+    if (product.ingredients_text) html += `<div class="detail-item"><span class="detail-label">Ingredientes</span><span class="detail-value" style="font-size: 14px;">${product.ingredients_text}</span></div>`;
+    html += '</div>';
+    productInfo.innerHTML = html;
+}
+
+barcodeBtn.addEventListener('click', scanBarcode);
+addProductFromScanBtn.addEventListener('click', () => {
+    if (scannedProduct) {
+        productInput.value = scannedProduct.product_name || '';
+        closeProductModal();
     }
 });
 
