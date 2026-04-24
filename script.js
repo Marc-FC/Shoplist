@@ -30,6 +30,24 @@ let currentListId = null;
 let currentPhoto = null;
 let expandedCategories = {};
 
+// Mapa de categorías (emoji a nombre)
+const categoryNames = {
+    '🍎': 'Frutas',
+    '🥛': 'Lácteos',
+    '🥕': 'Verduras',
+    '🥫': 'Conservas',
+    '🍞': 'Panadería',
+    '🌶️': 'Salsas',
+    '🧂': 'Condimentos',
+    '🍖': 'Carnes',
+    '🐟': 'Pescado',
+    '🍬': 'Snacks',
+    '🧹': 'Limpieza',
+    '💊': 'Medicinas',
+    '🧃': 'Bebidas',
+    '🏠': 'Otros'
+};
+
 // Cargar datos
 function loadData() {
     try {
@@ -234,10 +252,11 @@ function render() {
         // Crear header de la categoría (carpeta)
         const categoryHeader = document.createElement('li');
         categoryHeader.className = 'category-header';
+        const categoryName = categoryNames[category] || category;
         categoryHeader.innerHTML = `
             <div class="category-header-content">
                 <span class="category-toggle">${isExpanded ? '▼' : '▶'}</span>
-                <span class="category-name">${category}</span>
+                <span class="category-name">${category} ${categoryName}</span>
                 <span class="category-count">${items.length}</span>
             </div>
         `;
