@@ -34,6 +34,7 @@ let expandedCategories = {};
 const categoryNames = {
     '🍎': 'Frutas',
     '🥛': 'Lácteos',
+    '🧀': 'Quesos',
     '🥕': 'Verduras',
     '🥫': 'Conservas',
     '🍞': 'Panadería',
@@ -42,9 +43,12 @@ const categoryNames = {
     '🍖': 'Carnes',
     '🐟': 'Pescado',
     '🍬': 'Snacks',
+    '🧃': 'Bebidas',
+    '🍷': 'Vinos',
     '🧹': 'Limpieza',
     '💊': 'Medicinas',
-    '🧃': 'Bebidas',
+    '💪': 'Suplementos',
+    '💄': 'Cosméticos',
     '🏠': 'Otros'
 };
 
