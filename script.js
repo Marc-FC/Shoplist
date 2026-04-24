@@ -29,6 +29,7 @@ let productHistory = [];
 let currentListId = null;
 let currentPhoto = null;
 let expandedCategories = {};
+let optionalFieldsExpanded = false;
 
 // Mapa de categorías (emoji a nombre)
 const categoryNames = {
@@ -119,6 +120,25 @@ function getCurrentProducts() {
     return list ? list.products : [];
 }
 
+// Toggle campos opcionales (notas y tienda)
+function toggleOptionalFields() {
+    const optionalFields = document.getElementById('optionalFields');
+    optionalFieldsExpanded = !optionalFieldsExpanded;
+
+    if (optionalFieldsExpanded) {
+        optionalFields.style.display = 'block';
+    } else {
+        optionalFields.style.display = 'none';
+    }
+}
+
+// Colapsar campos opcionales
+function collapseOptionalFields() {
+    const optionalFields = document.getElementById('optionalFields');
+    optionalFieldsExpanded = false;
+    optionalFields.style.display = 'none';
+}
+
 // Agregar producto a la lista actual
 function addProduct() {
     const productName = productInput.value.trim();
@@ -128,6 +148,12 @@ function addProduct() {
 
     if (productName === '') {
         alert('Escribe el nombre del producto');
+        return;
+    }
+
+    // Si los campos opcionales no están expandidos, expandirlos
+    if (!optionalFieldsExpanded) {
+        toggleOptionalFields();
         return;
     }
 
@@ -164,6 +190,7 @@ function addProduct() {
     cameraBtn.textContent = '📷';
     cameraBtn.style.background = '#20c997';
     suggestionsList.style.display = 'none';
+    collapseOptionalFields();
 
     saveData();
     render();

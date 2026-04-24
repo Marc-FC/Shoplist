@@ -70,25 +70,6 @@
                         </ul>
                     </div>
 
-                    <div class="form-group">
-                        <textarea
-                            id="notesInput"
-                            class="notes-input"
-                            placeholder="Notas (ej: Preferir marca X, comprar tamaño grande)"
-                            rows="2"
-                        ></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <input
-                            type="text"
-                            id="storeInput"
-                            class="store-input"
-                            placeholder="Tienda (ej: Carrefour, Mercadona)"
-                            autocomplete="off"
-                        >
-                    </div>
-
                     <div class="form-row">
                         <select id="categorySelect" class="category-select">
                             <option value="🍎">🍎 Frutas</option>
@@ -112,6 +93,28 @@
                         </select>
                         <button id="cameraBtn" class="btn btn-camera">📷</button>
                         <button id="addBtn" class="btn btn-add">Agregar</button>
+                    </div>
+
+                    <!-- Campos opcionales (notas y tienda) - ocultos por defecto -->
+                    <div id="optionalFields" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee;">
+                        <div class="form-group">
+                            <textarea
+                                id="notesInput"
+                                class="notes-input"
+                                placeholder="Notas (ej: Preferir marca X, comprar tamaño grande)"
+                                rows="2"
+                            ></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <input
+                                type="text"
+                                id="storeInput"
+                                class="store-input"
+                                placeholder="Tienda (ej: Carrefour, Mercadona)"
+                                autocomplete="off"
+                            >
+                        </div>
                     </div>
                 </div>
 
