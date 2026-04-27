@@ -253,6 +253,14 @@ export default function App() {
 
   return (
     <div className="app-container">
+      <div className="background-pattern">
+        <span>🍎</span><span>🥕</span><span>🍌</span><span>🥒</span><span>🍓</span>
+        <span>🧅</span><span>🥔</span><span>🥬</span><span>🍊</span><span>🍉</span>
+        <span>🥦</span><span>🍇</span><span>🥝</span><span>🍅</span><span>🌽</span>
+        <span>🥕</span><span>🍎</span><span>🥬</span><span>🍌</span><span>🧄</span>
+        <span>🥦</span><span>🍓</span><span>🍊</span><span>🥒</span><span>🍉</span>
+      </div>
+
       <div className="app-header">
         <h1>🛒 ShopList</h1>
         <p>Tu lista de compras inteligente</p>
@@ -350,9 +358,14 @@ export default function App() {
             </div>
           )}
 
-          <button className="add-button" onClick={addProduct}>
-            {optionalFieldsExpanded ? '✓ Agregar' : '+ Agregar producto'}
-          </button>
+          <div className="button-row">
+            <button className="camera-button" onClick={() => alert('Cámara no disponible en web')}>
+              📷 Cámara
+            </button>
+            <button className="add-button" onClick={addProduct}>
+              {optionalFieldsExpanded ? '✓ Agregar' : '+ Agregar'}
+            </button>
+          </div>
         </div>
 
         {/* Products List */}
