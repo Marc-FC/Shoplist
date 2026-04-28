@@ -2,6 +2,13 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+
+// Load .env.local explicitly
+const envPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '.env.local');
+dotenv.config({ path: envPath });
+console.log('Loading env from:', envPath);
+console.log('ANTHROPIC_API_KEY available:', !!process.env.ANTHROPIC_API_KEY);
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -16,6 +23,17 @@ const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Express-like methods for compatibility
+  res.status = function(code) {
+    res.statusCode = code;
+    return this;
+  };
+  res.json = function(data) {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify(data));
+    return this;
+  };
 
   // Handle preflight
   if (req.method === 'OPTIONS') {
@@ -32,16 +50,17 @@ const server = http.createServer(async (req, res) => {
     req.on('end', async () => {
       try {
         req.body = JSON.parse(body);
+        console.log('Request received, processing...');
         await readLabelHandler(req, res);
       } catch (error) {
-        console.error('Error:', error);
-        res.writeHead(500, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ error: 'Internal server error' }));
+        console.error('Server error:', error.message, error.stack);
+        if (!res.headersSent) {
+          res.status(500).json({ error: error.message || 'Internal server error' });
+        }
       }
     });
   } else {
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ error: 'Not found' }));
+    res.status(404).json({ error: 'Not found' });
   }
 });
 
