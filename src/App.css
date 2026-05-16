@@ -615,3 +615,144 @@ textarea.input-field {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* ========== Settings Button & Modal ========== */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.app-header-text {
+  flex: 1;
+}
+.settings-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+.settings-button:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+.settings-modal {
+  max-width: 420px;
+}
+.settings-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 16px 0 8px 0;
+  color: #333;
+}
+.settings-language-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.settings-language-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #333;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.settings-language-item:hover {
+  background-color: #f5f5f5;
+}
+.settings-language-item.active {
+  background-color: #667eea;
+  border-color: #667eea;
+  color: #fff;
+}
+.settings-language-check {
+  font-weight: bold;
+}
+.settings-toggle {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: #333;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.settings-toggle.active {
+  background-color: #667eea;
+  border-color: #667eea;
+  color: #fff;
+}
+
+/* ========== Dark Mode ========== */
+.app-container.dark {
+  background-color: #121212;
+  color: #eee;
+}
+.app-container.dark .app-header {
+  background-color: rgba(30, 30, 30, 0.95);
+}
+.app-container.dark .app-header h1,
+.app-container.dark .app-header p {
+  color: #eee;
+}
+.app-container.dark .section {
+  background-color: #1e1e1e;
+  color: #eee;
+}
+.app-container.dark h2,
+.app-container.dark h3 {
+  color: #eee;
+}
+.app-container.dark .product-input,
+.app-container.dark .input-field,
+.app-container.dark .category-selector,
+.app-container.dark .toggle-optional {
+  background-color: #2a2a2a;
+  color: #eee;
+  border-color: #3a3a3a;
+}
+.app-container.dark .product-input::placeholder,
+.app-container.dark .input-field::placeholder {
+  color: #888;
+}
+.app-container.dark .list-button {
+  background-color: #2a2a2a;
+  color: #eee;
+  border-color: #3a3a3a;
+}
+.app-container.dark .modal-content {
+  background-color: #1e1e1e;
+  color: #eee;
+}
+.app-container.dark .settings-section-title {
+  color: #eee;
+}
+.app-container.dark .settings-language-item,
+.app-container.dark .settings-toggle {
+  background-color: #2a2a2a;
+  color: #eee;
+  border-color: #3a3a3a;
+}
+.app-container.dark .settings-language-item:hover {
+  background-color: #333;
+}
+.app-container.dark .settings-button:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.app-container.dark .background-pattern {
+  opacity: 0.04;
+}
